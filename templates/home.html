@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block content %}
+    <div class="row w-100 h-100 align-items-center justify-content-center">
+        <h2 class="col text-center">
+            {% if user.is_authenticated %}
+                This is your home, {{ user.username}}!
+            {% else %}
+                Get to your home, visitor!
+            {% endif %}
+        </h2>
+    </div>
+{% endblock %}
