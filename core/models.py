@@ -8,6 +8,9 @@ class Pharmacy(models.Model):
     zip = models.CharField(max_length=50, null=True)
     phone = models.CharField(max_length=50, null=True)
 
+    def __str__(self):
+        return f"{self.city}, {self.address}, {self.zip}"
+
 
 class Manager(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -48,6 +51,9 @@ class Storage(models.Model):
     pill_id = models.ForeignKey(Pill, on_delete=models.CASCADE)
     count = models.IntegerField()
     pharmacy_id = models.ForeignKey(Pharmacy, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.pharmacy_id.__str__()
 
 
 class Order(models.Model):

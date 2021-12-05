@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    Pills
+    Препараты
 {% endblock %}
 
 {% block content %}
@@ -9,7 +9,7 @@
     <div class="border h-100 border-light p-3 mb-4">
         <div class="row" >
             <div class="col scroll-none" style="overflow-x: auto;">
-                <table class="table table-hover table-dark">
+                <table class="table table-hover rounded bg-light shadow">
                   <thead>
                     <tr>
                       <th scope="col">ID</th>
@@ -29,7 +29,7 @@
                   <tbody>
                   {% for item in pills_list%}
                     <tr>
-                      <th scope="row">{{item.pill_id.id}}</th>
+                      <th scope="row">{{item.id}}</th>
                         <td>{{item.pill_id.name}}</td>
                         <td>{{item.pill_id.cost}}</td>
                         <td>{{item.pill_id.reg_date}}</td>
@@ -53,10 +53,10 @@
                 </table>
             </div>
             <div class="col-lg-3">
-                <div class="bg-dark rounded p-2 mb-2">
-                    <form method="post" class="text-light">
+                <div class="bg-light shadow rounded p-2 mb-2">
+                    <form method="post" class="text" autocomplete="off">
                         {% csrf_token %}
-                        <label class="text-light py-2">Поиск по наименованию</label>
+                        <label class="text py-2">Поиск по наименованию</label>
                         <div class="form-group">
                             {{form_pills_search_name}}
                         </div>
@@ -65,10 +65,10 @@
                         </div>
                     </form>
                   </div>
-                <div class="bg-dark rounded p-2 mb-2">
-                    <form method="post" class="text-light" autocomplete="off">
+                <div class="bg-light shadow rounded p-2 mb-2">
+                    <form method="post" class="text" autocomplete="off">
                         {% csrf_token %}
-                        <label class="text-light py-2">Поиск по категории</label>
+                        <label class="text py-2">Поиск по категории</label>
                         <div class="form-group">
                             {{form_pill_search_category}}
                         </div>
@@ -77,10 +77,10 @@
                         </div>
                     </form>
                   </div>
-                <div class="bg-dark rounded p-2 mb-2">
-                    <form method="post" class="text-light" autocomplete="off">
+                <div class="bg-light shadow rounded p-2 mb-2">
+                    <form method="post" class="text" autocomplete="off">
                         {% csrf_token %}
-                        <label class="text-light py-2">Поиск по цене</label>
+                        <label class="text py-2">Поиск по цене</label>
                         <div class="form-group">
                             {{form_pill_search_cost}}
                         </div>
@@ -89,11 +89,10 @@
                         </div>
                     </form>
                   </div>
-                {% if user.is_staff %}
-                    <div class="bg-dark rounded p-2 mb-2">
-                        <form method="post" class="text-light" autocomplete="off">
+                    <div class="bg-light shadow-sm rounded p-2 mb-2">
+                        <form method="post" class="text" autocomplete="off">
                             {% csrf_token %}
-                            <label class="text-light py-2">Поиск по сроку годности</label>
+                            <label class="text py-2">Поиск по сроку годности</label>
                                 <div class="form-group">
                                     {{form_pill_search_date}}
                                 </div>
@@ -103,7 +102,7 @@
                                     </div>
                                 </div>
                             <div class="form-group">
-                                 <input type="submit" name="pill_search_Date" class="btn btn-primary">
+                                 <input type="submit" name="pill_search_date" class="btn btn-primary">
                             </div>
                         </form>
                         <script>
@@ -114,93 +113,92 @@
                           });
                         </script>
                       </div>
-                    <div class="bg-dark rounded p-2 mb-2">
-                        <form method="post" class="text-light" autocomplete="off" >
-                            {% csrf_token %}
-                            <label class="text-light py-2">Добавить препарат</label>
-                            <div class="form-group" >
-                                <div class="form-group">
-                                {{form_pill_add}}
-                                </div>
-                            </div>
-                            <div class="row">
-                            <div class="form-group col" data-target="#datetimepicker5" data-toggle="datetimepicker">
-                                    <div class="input-group-text">
-                                        <i class="fa fa-calendar"></i>
-                                    </div>
-                                </div>
-                            <div class="form-group col" data-target="#datetimepicker6" data-toggle="datetimepicker">
-                                    <div class="input-group-text">
-                                        <i class="fa fa-calendar"></i>
-                                    </div>
-                            </div>
-                            </div>
-                            <div class="form-group">
-                                 <input type="submit" name="add_pill" class="btn btn-primary">
-                            </div>
-                        </form>
-                        <script>
-                          $(function () {
-                            $("#datetimepicker5").datetimepicker({
-                              format: 'DD/MM/YYYY HH:mm',
-                            });
-                          });
-                          $(function () {
-                            $("#datetimepicker6").datetimepicker({
-                              format: 'DD/MM/YYYY HH:mm',
-                            });
-                          });
-                        </script>
-                      </div>
-                    <div class="bg-dark rounded p-2 mb-2">
-                        <form method="post" class="text-light" autocomplete="off">
-                            {% csrf_token %}
-                            <label class="text-light py-2">Изменить препарат</label>
-                            <div class="form-group">
-                                {{form_pill_update}}
-                            </div>
-                            <div class="row">
-                                <div class="form-group my-2 col" data-target="#datetimepicker7" data-toggle="datetimepicker">
-                                        <div class="input-group-text">
-                                            <i class="fa fa-calendar"></i>
-                                        </div>
-                                </div>
-                                <div class="form-group my-2 col" data-target="#datetimepicker8" data-toggle="datetimepicker">
-                                        <div class="input-group-text">
-                                            <i class="fa fa-calendar"></i>
-                                        </div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                 <input type="submit" name="update_pill" class="btn btn-primary">
-                            </div>
-                        </form>
-                        <script>
-                          $(function () {
-                            $("#datetimepicker7").datetimepicker({
-                              format: 'DD/MM/YYYY HH:mm',
-                            });
-                          });
-                          $(function () {
-                            $("#datetimepicker8").datetimepicker({
-                              format: 'DD/MM/YYYY HH:mm',
-                            });
-                          });
-                        </script>
-                      </div>
-                    <div class="bg-dark rounded p-2 mb-2">
-                        <form method="post" class="text-light" autocomplete="off">
-                            {% csrf_token %}
-                            <label class="text-light py-2">Удалить препарат</label>
-                            <div class="form-group">
-                                {{form_pill_delete}}
-                            </div>
-                            <div class="form-group">
-                                 <input type="submit" name="delete_pill" class="btn btn-primary">
-                            </div>
-                        </form>
-                      </div>
-                {% endif %}
+<!--                    <div class="bg-light shadow-sm rounded p-2 mb-2">-->
+<!--                        <form method="post" class="text-light" autocomplete="off" >-->
+<!--                            {% csrf_token %}-->
+<!--                            <label class="text-light py-2">Добавить препарат</label>-->
+<!--                            <div class="form-group" >-->
+<!--                                <div class="form-group">-->
+<!--                                {{form_pill_add}}-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                            <div class="row">-->
+<!--                            <div class="form-group col" data-target="#datetimepicker5" data-toggle="datetimepicker">-->
+<!--                                    <div class="input-group-text">-->
+<!--                                        <i class="fa fa-calendar"></i>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            <div class="form-group col" data-target="#datetimepicker6" data-toggle="datetimepicker">-->
+<!--                                    <div class="input-group-text">-->
+<!--                                        <i class="fa fa-calendar"></i>-->
+<!--                                    </div>-->
+<!--                            </div>-->
+<!--                            </div>-->
+<!--                            <div class="form-group">-->
+<!--                                 <input type="submit" name="add_pill" class="btn btn-primary">-->
+<!--                            </div>-->
+<!--                        </form>-->
+<!--                        <script>-->
+<!--                          $(function () {-->
+<!--                            $("#datetimepicker5").datetimepicker({-->
+<!--                              format: 'DD/MM/YYYY HH:mm',-->
+<!--                            });-->
+<!--                          });-->
+<!--                          $(function () {-->
+<!--                            $("#datetimepicker6").datetimepicker({-->
+<!--                              format: 'DD/MM/YYYY HH:mm',-->
+<!--                            });-->
+<!--                          });-->
+<!--                        </script>-->
+<!--                      </div>-->
+<!--                    <div class="bg-light shadow-sm rounded p-2 mb-2">-->
+<!--                        <form method="post" class="text-light" autocomplete="off">-->
+<!--                            {% csrf_token %}-->
+<!--                            <label class="text-light py-2">Изменить препарат</label>-->
+<!--                            <div class="form-group">-->
+<!--                                {{form_pill_update}}-->
+<!--                            </div>-->
+<!--                            <div class="row">-->
+<!--                                <div class="form-group my-2 col" data-target="#datetimepicker7" data-toggle="datetimepicker">-->
+<!--                                        <div class="input-group-text">-->
+<!--                                            <i class="fa fa-calendar"></i>-->
+<!--                                        </div>-->
+<!--                                </div>-->
+<!--                                <div class="form-group my-2 col" data-target="#datetimepicker8" data-toggle="datetimepicker">-->
+<!--                                        <div class="input-group-text">-->
+<!--                                            <i class="fa fa-calendar"></i>-->
+<!--                                        </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                            <div class="form-group">-->
+<!--                                 <input type="submit" name="update_pill" class="btn btn-primary">-->
+<!--                            </div>-->
+<!--                        </form>-->
+<!--                        <script>-->
+<!--                          $(function () {-->
+<!--                            $("#datetimepicker7").datetimepicker({-->
+<!--                              format: 'DD/MM/YYYY HH:mm',-->
+<!--                            });-->
+<!--                          });-->
+<!--                          $(function () {-->
+<!--                            $("#datetimepicker8").datetimepicker({-->
+<!--                              format: 'DD/MM/YYYY HH:mm',-->
+<!--                            });-->
+<!--                          });-->
+<!--                        </script>-->
+<!--                      </div>-->
+<!--                    <div class="bg-dark rounded p-2 mb-2">-->
+<!--                        <form method="post" class="text-light" autocomplete="off">-->
+<!--                            {% csrf_token %}-->
+<!--                            <label class="text-light py-2">Удалить препарат</label>-->
+<!--                            <div class="form-group">-->
+<!--                                {{form_pill_delete}}-->
+<!--                            </div>-->
+<!--                            <div class="form-group">-->
+<!--                                 <input type="submit" name="delete_pill" class="btn btn-primary">-->
+<!--                            </div>-->
+<!--                        </form>-->
+<!--                      </div>-->
             </div>
         </div>
     </div>

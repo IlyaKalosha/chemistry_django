@@ -74,12 +74,12 @@ class UpdateSeller(forms.Form):
 
 
 class RecipeSearchDate(forms.Form):
-    expiredate = forms.DateField(label="", input_formats=['%d/%m/%Y %H:%M'],
-                                 widget=forms.DateTimeInput(
-                                     attrs={'data-target': '#datetimepicker1',
-                                            'class': 'form-control date datetimepicker-input my-1',
-                                            'placeholder': 'Срок годности', 'id': "datetimepicker1",
-                                            'data-target-input': 'nearest'}))
+    expire_date = forms.DateField(label="", input_formats=['%d/%m/%Y %H:%M'],
+                                  widget=forms.DateTimeInput(
+                                      attrs={'data-target': '#datetimepicker1',
+                                             'class': 'form-control date datetimepicker-input my-1',
+                                             'placeholder': 'Срок годности', 'id': "datetimepicker1",
+                                             'data-target-input': 'nearest'}))
 
 
 class RecipeSearchDoctor(forms.Form):
@@ -89,7 +89,7 @@ class RecipeSearchDoctor(forms.Form):
 
 
 class DeleteRecipe(forms.Form):
-    ID = forms.IntegerField(label="",
+    id = forms.IntegerField(label="",
                             widget=forms.NumberInput(
                                 attrs={'class': 'form-control my-1', 'placeholder': 'ID для удаления'}))
 
@@ -102,7 +102,7 @@ class AddRecipe(forms.Form):
                                 widget=forms.TextInput(
                                     attrs={'class': 'form-control my-1', 'placeholder': 'Подпись'}))
 
-    expiredate = forms.DateField(label="", input_formats=['%d/%m/%Y %H:%M'],
+    expire_date = forms.DateField(label="", input_formats=['%d/%m/%Y %H:%M'],
                                  widget=forms.DateTimeInput(
                                      attrs={'data-target': '#datetimepicker2',
                                             'class': 'form-control date datetimepicker-input my-1',
@@ -111,7 +111,7 @@ class AddRecipe(forms.Form):
 
 
 class UpdateRecipe(forms.Form):
-    ID = forms.IntegerField(label="",
+    id = forms.IntegerField(label="",
                             widget=forms.NumberInput(
                                 attrs={'class': 'form-control my-1', 'placeholder': 'ID для изменения'}))
     doctor = forms.CharField(max_length=50, label="", required=None,
@@ -121,7 +121,7 @@ class UpdateRecipe(forms.Form):
                                 widget=forms.TextInput(
                                     attrs={'class': 'form-control my-1', 'placeholder': 'Подпись'}))
 
-    expiredate = forms.DateField(label="", input_formats=['%d/%m/%Y %H:%M'], required=None,
+    expire_date = forms.DateField(label="", input_formats=['%d/%m/%Y %H:%M'], required=None,
                                  widget=forms.DateTimeInput(
                                      attrs={'data-target': '#datetimepicker3',
                                             'class': 'form-control date datetimepicker-input my-1',

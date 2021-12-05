@@ -5,7 +5,7 @@ from django.contrib.auth.models import Group, User
 
 @admin.register(Pharmacy)
 class PharmacyAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['city', 'address', 'zip', 'phone']
 
 
 @admin.register(Manager)
@@ -44,5 +44,9 @@ class RecipeAdmin(admin.ModelAdmin):
 
 @admin.register(Storage)
 class StorageAdmin(admin.ModelAdmin):
-    pass
+    def get_queryset(self, request):
+        qs = super(StorageAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(pharmacy_id=request.user.manager.pharmacy_id)
 

@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Рецепты
+{% endblock %}
+
+{% block content %}
+    {% if user.is_staff or user.seller %}
+    <div class="border h-100 border-light p-3 mb-4">
+        <div class="row">
+            <div class="col">
+                <table class="table table-hover table-dark">
+                  <thead>
+                    <tr>
+                      <th scope="col">ID</th>
+                      <th scope="col">Врач</th>
+                      <th scope="col">Подпись</th>
+                      <th scope="col">Срок годности</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for item in recipes_list%}
+                    <tr>
+                      <th scope="row">{{item.id}}</th>
+                      <td>{{item.doctor}}</td>
+                      <td>{{item.signature}}</td>
+                      <td>{{item.expire_date}}</td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+            </div>
+            <div class="col-lg-3">
+                <div class="bg-dark rounded p-2 mb-2">
+                    <form method="post" autocomplete="off">
+                        {% csrf_token %}
+                        <label class="text-light py-2">Поиск по доктору</label>
+                        <div class="form-group">
+                            {{form_recipe_search_doctor}}
+                        </div>
+                        <div class="form-group">
+                             <input type="submit" name="search_doctor" class="btn btn-primary">
+                        </div>
+                    </form>
+                  </div>
+                <div class="bg-dark rounded p-2 mb-2">
+                    <form method="post" autocomplete="off">
+                        <label class="text-light py-2">Поиск по сроку годности</label>
+                            <div class="form-group">
+                                {{form_recipe_search_date}}
+                            </div>
+                            <div class="form-group my-2" data-target="#datetimepicker1" data-toggle="datetimepicker">
+                                <div class="input-group-text">
+                                    <i class="fa fa-calendar"></i>
+                                </div>
+                            </div>
+                        <div class="form-group">
+                             <input type="submit" name="search_date" class="btn btn-primary">
+                        </div>
+                    </form>
+                    <script>
+                      $(function () {
+                        $("#datetimepicker1").datetimepicker({
+                          format: 'DD/MM/YYYY HH:mm',
+                        });
+                      });
+                    </script>
+                  </div>
+            </div>
+<!--            {% if user.is_staff %}-->
+<!--            <div class="col-lg-3">-->
+<!--                <div class="bg-dark rounded p-2 mb-2">-->
+<!--                    <form method="post" autocomplete="off">-->
+<!--                        <label class="text-light py-2">Добавить рецепт</label>-->
+<!--                        <div class="form-group" >-->
+<!--                            <div class="form-group">-->
+<!--                            {{form_recipe_add}}-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                        <div class="form-group" data-target="#datetimepicker2" data-toggle="datetimepicker">-->
+<!--                                <div class="input-group-text">-->
+<!--                                    <i class="fa fa-calendar"></i>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        <div class="form-group">-->
+<!--                             <input type="submit" name="add_recipe" class="btn btn-primary">-->
+<!--                        </div>-->
+<!--                    </form>-->
+<!--                    <script>-->
+<!--                      $(function () {-->
+<!--                        $("#datetimepicker2").datetimepicker({-->
+<!--                          format: 'DD/MM/YYYY HH:mm',-->
+<!--                        });-->
+<!--                      });-->
+<!--                    </script>-->
+<!--                  </div>-->
+<!--                <div class="bg-dark rounded p-2 mb-2">-->
+<!--                    <form method="post" autocomplete="off">-->
+<!--                        <label class="text-light py-2">Изменить рецепт</label>-->
+<!--                        <div class="form-group">-->
+<!--                            {{form_recipe_update}}-->
+<!--                        </div>-->
+<!--                        <div class="form-group my-2" data-target="#datetimepicker3" data-toggle="datetimepicker">-->
+<!--                                <div class="input-group-text">-->
+<!--                                    <i class="fa fa-calendar"></i>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        <div class="form-group">-->
+<!--                             <input type="submit" name="update_recipe" class="btn btn-primary">-->
+<!--                        </div>-->
+<!--                    </form>-->
+<!--                    <script>-->
+<!--                      $(function () {-->
+<!--                        $("#datetimepicker3").datetimepicker({-->
+<!--                          format: 'DD/MM/YYYY HH:mm',-->
+<!--                        });-->
+<!--                      });-->
+<!--                    </script>-->
+<!--                  </div>-->
+<!--                <div class="bg-dark rounded p-2 mb-2">-->
+<!--                    <form method="post" autocomplete="off">-->
+<!--                        <label class="text-light py-2">Удалить рецепт</label>-->
+<!--                        <div class="form-group">-->
+<!--                            {{form_recipe_delete}}-->
+<!--                        </div>-->
+<!--                        <div class="form-group">-->
+<!--                             <input type="submit" name="delete_recipe" class="btn btn-primary">-->
+<!--                        </div>-->
+<!--                    </form>-->
+<!--                  </div>-->
+<!--            </div>-->
+<!--            {% endif %}-->
+        </div>
+    </div>
+    {% else %}
+    <div>
+        You have not enough permissions to use the content. Please contact your administrator
+    </div>
+    {% endif %}
+{% endblock %}
+
+
+
