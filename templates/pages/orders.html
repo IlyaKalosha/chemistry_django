@@ -6,68 +6,49 @@
 
 {% block content %}
     {% if user.is_staff or user.seller %}
-    <div class="border h-100 border-light p-3 mb-4">
-        <div class="row" >
-            <div class="col scroll-none" style="overflow-x: auto;">
-                <H2 align="center">Заказ №{{orderId}}</H2>
-                <table class="table table-hover table-dark">
-                  <thead>
-                    <tr>
-                      <th scope="col">ID</th>
-                      <th scope="col">Наименование</th>
-                      <th scope="col">Количество</th>
-                      <th scope="col">Цена</th>
-                      <th scope="col">Штрихкод</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                  {% for item in table%}
-                    <tr>
-                      <th scope="row">{{item.0}}</th>
-                      <td>{{item.2}}</td>
-                      <td>{{item.1}}</td>
-                      <td>{{item.3}}</td>
-                        <td>{{item.4}}</td>
-                    </tr>
-                  {% endfor %}
-                  </tbody>
-                </table>
+        <div class="border h-100 border-light p-3 mb-4">
+            <div class="row w-100">
+                <div class="col scroll-none" style="overflow-x: auto;">
+                    <div class="d-flex justify-content-between">
+                        <H4>Корзина</H4>
+                        <H4>Заказ № {{ items_list.0.order_id.id }}</H4>
+                    </div>
+                    <table class="table table-hover rounded bg-light shadow">
+                        <thead>
+                        <tr>
+                            <th scope="col">Наименование</th>
+                            <th scope="col">Количество</th>
+                            <th scope="col">Цена</th>
+                            <th scope="col">Штрихкод</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in items_list %}
+                            <tr>
+                                <td>{{ item.pill_id.name }}</td>
+                                <td>{{ item.count }}</td>
+                                <td>{{ item.pill_id.cost }}</td>
+                                <td>{{ item.pill_id.barcode }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="col-lg-3">
-                <div class="bg-dark rounded p-2 mb-2">
-                    <form method="post" class="text-light">
-                        <label class="text-light py-2">Создать заказ</label>
-                        <div class="form-group">
-                             <input type="submit" name="createorder" class="btn btn-primary">
-                        </div>
-                    </form>
-                  </div>
-                <div class="bg-dark rounded p-2 mb-2">
-                    <form method="post" class="text-light">
-                        <label class="text-light py-2">Добавить в корзину</label>
-                        <div class="form-group">
-                            {{addPillToBasketForm}}
-                        </div>
-                        <div class="form-group">
-                             <input type="submit" name="addtobasket" class="btn btn-primary">
-                        </div>
-                    </form>
-                  </div>
-                <div class="bg-dark rounded p-2 mb-2">
+            <div class="d-flex justify-content-center">
+                <div class="d-flex justify-content-center rounded p-2 mb-2 w-25">
                     <form method="post" class="text-light" target="_blank">
-                        <label class="text-light py-2">Сгенерировать чек</label>
                         <div class="form-group">
-                             <input type="submit" name="generatecheck" class="btn btn-primary">
+                            <input type="reset" name="create_order" class="btn btn-dark">
+                            <input type="submit" name="create_order" class="btn btn-primary">
                         </div>
                     </form>
-                  </div>
-
+                </div>
             </div>
         </div>
-    </div>
     {% else %}
-    <div>
-        You have not enough permissions to use the content. Please contact your administrator
-    </div>
+        <div>
+            You have not enough permissions to use the content. Please contact your administrator
+        </div>
     {% endif %}
 {% endblock %}

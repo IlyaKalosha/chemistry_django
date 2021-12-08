@@ -14,22 +14,36 @@ class Pharmacy(models.Model):
 
 class Manager(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=30, blank=True)
+    last_name = models.CharField(max_length=150, blank=True)
+    email = models.EmailField(blank=True)
     patronymic = models.CharField(max_length=20)
     phone = models.CharField(max_length=20)
     pharmacy_id = models.ForeignKey(Pharmacy, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f'{self.first_name} {self.last_name} {self.patronymic}'
+
 
 class Seller(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=30, blank=True)
+    last_name = models.CharField(max_length=150, blank=True)
+    email = models.EmailField(blank=True)
     patronymic = models.CharField(max_length=20)
     phone = models.CharField(max_length=20)
     manager_id = models.ForeignKey(Manager, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f'{self.first_name} {self.last_name} {self.patronymic}'
+
 
 class Recipe(models.Model):
-    doctor = models.CharField(max_length=50),
+    doctor = models.CharField(max_length=50)
+    pill_name = models.CharField(max_length=50)
     signature = models.CharField(max_length=256)
     expire_date = models.DateField()
+
 
 
 class Pill(models.Model):
@@ -57,8 +71,10 @@ class Storage(models.Model):
 
 
 class Order(models.Model):
-    seller_id = models.ForeignKey(Seller, on_delete=models.CASCADE)
+    seller_id = models.ForeignKey(Seller, on_delete=models.CASCADE, null=True, blank=True)
+    manager_id = models.ForeignKey(Manager, on_delete=models.CASCADE, null=True, blank=True)
     pharmacy_id = models.ForeignKey(Pharmacy, on_delete=models.CASCADE)
+    is_agreed = models.BooleanField()
     date = models.DateField()
 
 
