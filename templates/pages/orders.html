@@ -17,29 +17,56 @@
                         <thead>
                         <tr>
                             <th scope="col">Наименование</th>
+                            <th scope="col">Штрихкод</th>
                             <th scope="col">Количество</th>
                             <th scope="col">Цена</th>
-                            <th scope="col">Штрихкод</th>
                         </tr>
                         </thead>
                         <tbody>
                         {% for item in items_list %}
-                            <tr>
-                                <td>{{ item.pill_id.name }}</td>
-                                <td>{{ item.count }}</td>
-                                <td>{{ item.pill_id.cost }}</td>
-                                <td>{{ item.pill_id.barcode }}</td>
-                            </tr>
+                        <tr>
+                            <td>{{ item.pill_id.name }}</td>
+                            <td>{{ item.pill_id.barcode }}</td>
+                            <td>
+                                <div>
+                                    <button type="submit" name="add_to_cart" onclick="addToCart({{item.pill_id.id}})"
+                                            class="btn-primary btn-sm mx-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             fill="currentColor" class="bi bi-dash" viewBox="0 0 16 16">
+                                            <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
+                                        </svg>
+
+                                    </button>
+                                    {{ item.count }}
+                                    <button type="submit" name="add_to_cart" onclick="addToCart({{item.pill_id.id}})"
+                                            class="btn-sm btn-primary mx-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             fill="currentColor"
+                                             class="bi bi-plus" viewBox="0 0 16 16">
+                                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>{{ item.pill_id.cost }}</td>
+                        </tr>
                         {% endfor %}
+                        <tr>
+                            <td/>
+                            <td/>
+                            <td class="font-weight-bold h5">Итог</td>
+                            <td class="font-weight-bold h5">{{ final_cost }}</td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
             <div class="d-flex justify-content-center">
                 <div class="d-flex justify-content-center rounded p-2 mb-2 w-25">
-                    <form method="post" class="text-light" target="_blank">
+                    <form method="post" class="text-light">
+                        {% csrf_token %}
                         <div class="form-group">
-                            <input type="reset" name="create_order" class="btn btn-dark">
+                            <input type="reset" name="cancel_order" class="btn btn-dark">
                             <input type="submit" name="create_order" class="btn btn-primary">
                         </div>
                     </form>

@@ -6,11 +6,15 @@
 
 {% block content %}
     <script>
-        function addToCart(storageId)
-        {
+        function hideAlert(storageId) {
+            $(".alert").removeClass('show');
+        }
+
+        function addToCart(storageId) {
+            $(".alert").addClass('show');
             var xmlHttp = new XMLHttpRequest();
-            xmlHttp.open( "GET", '/pills/?storageId='+storageId, false ); // false for synchronous request
-            xmlHttp.send( null );
+            xmlHttp.open("GET", '/pills/?storageId=' + storageId, false);
+            xmlHttp.send(null);
             return xmlHttp.responseText;
         }
     </script>
@@ -21,7 +25,6 @@
                     <table class="table table-hover rounded bg-light shadow">
                         <thead>
                         <tr>
-                            <th scope="col">ID</th>
                             <th scope="col">Наименование</th>
                             <th scope="col">Цена</th>
                             <th scope="col">Годен до</th>
@@ -38,10 +41,9 @@
                         <tbody>
                         {% for item in pills_list %}
                             <tr>
-                                <th scope="row">{{ item.id }}</th>
                                 <td>{{ item.pill_id.name }}</td>
                                 <td>{{ item.pill_id.cost }}</td>
-                                <td>{{ item.pill_id.end_date }}</td>
+                                <td>{{ item.end_date }}</td>
                                 <td>{{ item.pill_id.category }}</td>
                                 <td>{{ item.pill_id.country }}</td>
                                 <td>{{ item.pill_id.barcode }}</td>
@@ -56,11 +58,16 @@
                                 <td>{{ item.count }}</td>
                                 <td>{{ item.pharmacy_id.city }}, {{ item.pharmacy_id.address }}</td>
                                 <td class="d-flex justify-content-center">
-                                        <button type="submit" name="add_to_cart" onclick="addToCart({{ item.pill_id.id }})" class="btn btn-primary">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
-                                              <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"></path>
-                                            </svg>
-                                        </button>
+                                    {% if item.pharmacy_id == user.manager.pharmacy_id or item.pharmacy_id == user.seller.manager_id.pharmacy_id%}
+                                    <button type="submit" name="add_to_cart" onclick="addToCart({{item.pill_id.id}})"
+                                            class="btn btn-primary">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"></path>
+                                        </svg>
+                                    </button>
+                                    {% else %}
+                                    {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}
@@ -68,10 +75,17 @@
                     </table>
                 </div>
             </div>
+            <div class="alert alert-success alert-dismissible fade" role="alert" style="position: fixed; bottom: 20px; right: 20px;">
+                <strong>Успешно добавлено в корзину</strong>
+                <button type="button" class="close" onclick="hideAlert()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
         </div>
-    {% else %}
-        <div>
-            You have not enough permissions to use the content. Please contact your administrator
-        </div>
-    {% endif %}
+
+{% else %}
+<div>
+    You have not enough permissions to use the content. Please contact your administrator
+</div>
+{% endif %}
 {% endblock %}

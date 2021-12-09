@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import Sum
 
 
 class Pharmacy(models.Model):
@@ -49,8 +50,6 @@ class Recipe(models.Model):
 class Pill(models.Model):
     name = models.CharField(max_length=50)
     cost = models.FloatField()
-    reg_date = models.DateField()
-    end_date = models.DateField(null=True)
     category = models.CharField(max_length=50)
     country = models.CharField(max_length=50)
     barcode = models.CharField(max_length=50)
@@ -63,6 +62,8 @@ class Pill(models.Model):
 
 class Storage(models.Model):
     pill_id = models.ForeignKey(Pill, on_delete=models.CASCADE)
+    reg_date = models.DateField()
+    end_date = models.DateField(null=True)
     count = models.IntegerField()
     pharmacy_id = models.ForeignKey(Pharmacy, on_delete=models.CASCADE)
 

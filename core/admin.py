@@ -18,7 +18,7 @@ class ManagerAdmin(admin.ModelAdmin):
 
 @admin.register(Pill)
 class PillAdmin(admin.ModelAdmin):
-    search_fields = ['name', 'category']
+    search_fields = ['name', 'category', 'end_date']
 
 
 @admin.register(Seller)
