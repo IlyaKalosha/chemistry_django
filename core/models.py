@@ -45,6 +45,9 @@ class Recipe(models.Model):
     signature = models.CharField(max_length=256)
     expire_date = models.DateField()
 
+    def __str__(self):
+        return f'{self.pill_name}'
+
 
 
 class Pill(models.Model):

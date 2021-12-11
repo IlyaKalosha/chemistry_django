@@ -4,6 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Sum
 from django.shortcuts import render, redirect
+from django.http import HttpResponse
 from django.views import View
 from django.views.generic import TemplateView
 from django.db.models import Q
@@ -37,56 +38,77 @@ class Pills(LoginRequiredMixin, View):
             self.user_manager = request.user.manager
         if hasattr(request.user, 'seller'):
             self.user_seller = request.user.seller
-            self.user_manager = request.user.seller.manager_id
         if 'storageId' in request.GET:
-            current_order = models.Order.objects.filter(Q(is_agreed=False) &
-                                                        (Q(seller_id=self.user_seller) |
-                                                         Q(manager_id=self.user_manager))
-                                                        )
-            print(current_order)
-            current_pill = request.GET.get('storageId')
-            if hasattr(request.user, 'manager'):
-                if current_order:
-                    current_order = current_order[0]
-                    existed_pill_in_basket = models.Basket.objects.filter(order_id=current_order,
-                                                                          pill_id__id=current_pill)
-                    if existed_pill_in_basket:
-                        existed_pill_in_basket = existed_pill_in_basket[0]
-                        existed_pill_in_basket.count += 1
-                        existed_pill_in_basket.save()
+            try:
+                current_storage = request.GET.get('storageId')
+                current_pill = models.Storage.objects.get(pk=current_storage).pill_id
+                if hasattr(request.user, 'manager'):
+                    current_order = models.Order.objects.filter(Q(is_agreed=False) &
+                                                                Q(pharmacy_id=self.user_manager.pharmacy_id) &
+                                                                Q(manager_id=self.user_manager))
+                    print(current_order)
+                    if current_order:
+                        current_order = current_order[0]
+                        existed_pill_in_basket = models.Basket.objects.filter(order_id=current_order,
+                                                                              pill_id__id=current_pill.id)
+                        if existed_pill_in_basket:
+                            existed_pill_in_basket = existed_pill_in_basket[0]
+                            existed_pill_in_basket.count += 1
+                            edited_pill = models.Storage.objects.get(pk=current_storage)
+                            edited_pill.count -= 1
+                            edited_pill.save()
+                            existed_pill_in_basket.save()
+                        else:
+                            new_pill_in_basket = models.Basket(order_id=current_order,
+                                                               pill_id=models.Pill.objects.get(pk=current_pill.id), count=1)
+                            new_pill_in_basket.save()
                     else:
-                        new_pill_in_basket = models.Basket(order_id=current_order,
-                                                           pill_id=models.Pill.objects.get(pk=current_pill), count=1)
+                        new_order = models.Order(manager_id=request.user.manager,
+                                                 pharmacy_id=request.user.manager.pharmacy_id, is_agreed=False,
+                                                 date=datetime.datetime.now())
+                        new_order.save()
+                        new_pill_in_basket = models.Basket(order_id=new_order,
+                                                           pill_id=models.Pill.objects.get(pk=current_pill.id), count=1)
+                        edited_pill = models.Storage.objects.get(pk=current_storage)
+                        edited_pill.count -= 1
+                        edited_pill.save()
                         new_pill_in_basket.save()
                 else:
-                    new_order = models.Order(manager_id=request.user.manager,
-                                             pharmacy_id=request.user.manager.pharmacy_id, is_agreed=False,
-                                             date=datetime.datetime.now())
-                    new_order.save()
-                    new_pill_in_basket = models.Basket(order_id=new_order,
-                                                       pill_id=models.Pill.objects.get(pk=current_pill), count=1)
-                    new_pill_in_basket.save()
-            else:
-                if current_order:
-                    current_order = current_order[0]
-                    existed_pill_in_basket = models.Basket.objects.filter(order_id=current_order,
-                                                                          pill_id__id=current_pill)
-                    if existed_pill_in_basket:
-                        existed_pill_in_basket = existed_pill_in_basket[0]
-                        existed_pill_in_basket.count += 1
-                        existed_pill_in_basket.save()
+                    current_order = models.Order.objects.filter(Q(is_agreed=False) &
+                                                                Q(pharmacy_id=self.user_seller.manager_id.pharmacy_id) &
+                                                                Q(seller_id=self.user_seller))
+                    print(current_order)
+                    if current_order:
+                        current_order = current_order[0]
+                        existed_pill_in_basket = models.Basket.objects.filter(order_id=current_order,
+                                                                              pill_id__id=current_pill.id)
+                        if existed_pill_in_basket:
+                            existed_pill_in_basket = existed_pill_in_basket[0]
+                            existed_pill_in_basket.count += 1
+                            edited_pill = models.Storage.objects.get(pk=current_storage)
+                            edited_pill.count -= 1
+                            edited_pill.save()
+                            existed_pill_in_basket.save()
+                        else:
+                            new_pill_in_basket = models.Basket(order_id=current_order,
+                                                               pill_id=models.Pill.objects.get(pk=current_pill.id), count=1)
+                            new_pill_in_basket.save()
                     else:
-                        new_pill_in_basket = models.Basket(order_id=current_order,
-                                                           pill_id=models.Pill.objects.get(pk=current_pill), count=1)
+                        new_order = models.Order(seller_id=request.user.seller,
+                                                 pharmacy_id=request.user.seller.manager_id.pharmacy_id, is_agreed=False,
+                                                 date=datetime.datetime.now())
+                        new_order.save()
+                        new_pill_in_basket = models.Basket(order_id=new_order,
+                                                           pill_id=models.Pill.objects.get(pk=current_pill.id), count=1)
+                        edited_pill = models.Storage.objects.get(pk=current_storage)
+                        edited_pill.count -= 1
+                        edited_pill.save()
                         new_pill_in_basket.save()
-                else:
-                    new_order = models.Order(seller_id=request.user.seller,
-                                             pharmacy_id=request.user.seller.manager_id.pharmacy_id, is_agreed=False,
-                                             date=datetime.datetime.now())
-                    new_order.save()
-                    new_pill_in_basket = models.Basket(order_id=new_order,
-                                                       pill_id=models.Pill.objects.get(pk=current_pill), count=1)
-                    new_pill_in_basket.save()
+                return HttpResponse(status=201, content="Успешно добавлено в корзину")
+            except Exception as e:
+                print(e)
+                return HttpResponse(status=500, content="Ошибка при добавлении в корзину")
+
         if 'search' in request.GET:
             if request.GET.get('global_check'):
                 context['pills_list'] = []
@@ -149,10 +171,15 @@ class Orders(LoginRequiredMixin, View):
     template_name = 'pages/orders.html'
 
     def get_context_data(self, request, **kwargs):
-        kwargs['items_list'] = models.Basket.objects.filter(Q(order_id__is_agreed=False) &
-                                                            Q(order_id__pharmacy_id=self.user_manager.pharmacy_id) &
-                                                            (Q(order_id__seller_id=self.user_seller) |
-                                                            Q(order_id__manager_id=self.user_manager)))
+        if hasattr(request.user, 'seller'):
+            kwargs['items_list'] = models.Basket.objects.filter(Q(order_id__is_agreed=False) &
+                                                                Q(order_id__pharmacy_id=self.user_seller.manager_id.pharmacy_id) &
+                                                                Q(order_id__seller_id=self.user_seller)).order_by('pill_id')
+        if hasattr(request.user, 'manager'):
+            kwargs['items_list'] = models.Basket.objects.filter(Q(order_id__is_agreed=False) &
+                                                                Q(order_id__pharmacy_id=self.user_manager.pharmacy_id) &
+                                                                Q(order_id__manager_id=self.user_manager)).order_by('pill_id')
+
         kwargs['final_cost'] = 0
         for item in kwargs['items_list']:
             kwargs['final_cost'] += item.count * item.pill_id.cost
@@ -166,6 +193,32 @@ class Orders(LoginRequiredMixin, View):
         if hasattr(request.user, 'seller'):
             self.user_seller = request.user.seller
             self.user_manager = request.user.seller.manager_id
+
+        if 'add_count' in request.GET:
+            context = {}
+            current_basket = models.Basket.objects.get(pk=request.GET.get('add_count'))
+            current_storage = models.Storage.objects.filter(pill_id=current_basket.pill_id, pharmacy_id=current_basket.order_id.pharmacy_id)[0]
+            if current_storage.count > 0:
+                current_basket.count += 1
+                current_storage.count -= 1
+                current_storage.save()
+                current_basket.save()
+            else:
+                return HttpResponse(status=500, content="Ошибка при добавлении в корзину")
+
+            return render(request, self.template_name, self.get_context_data(request, **context))
+
+        if 'delete_count' in request.GET:
+            context = {}
+            current_basket = models.Basket.objects.get(pk=request.GET.get('delete_count'))
+            current_storage = models.Storage.objects.filter(pill_id=current_basket.pill_id, pharmacy_id=current_basket.order_id.pharmacy_id)[0]
+            current_basket.count -= 1
+            current_storage.count += 1
+            current_storage.save()
+            current_basket.save()
+            return render(request, self.template_name, self.get_context_data(request, **context))
+
+
         return render(request, self.template_name, self.get_context_data(request))
 
     def post(self, request, *args, **kwargs):

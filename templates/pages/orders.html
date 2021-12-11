@@ -1,20 +1,43 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    Заказы
+Заказы
 {% endblock %}
 
 {% block content %}
-    {% if user.is_staff or user.seller %}
-        <div class="border h-100 border-light p-3 mb-4">
-            <div class="row w-100">
-                <div class="col scroll-none" style="overflow-x: auto;">
-                    <div class="d-flex justify-content-between">
-                        <H4>Корзина</H4>
-                        <H4>Заказ № {{ items_list.0.order_id.id }}</H4>
-                    </div>
-                    <table class="table table-hover rounded bg-light shadow">
-                        <thead>
+<script>
+    function increment(basketID) {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("GET", '/orders/?add_count=' + basketID, false);
+        xmlHttp.send(null);
+        if (xmlHttp.status == 200)
+            $('#number_' + basketID).html(parseFloat($('#number_' + basketID).html(), 10) + 1)
+            $('#final_cost').html(parseFloat($('#final_cost').html(), 10) + parseFloat($('#cost_' + basketID).html(), 10))
+        return xmlHttp.responseText;
+    }
+
+    function decrement(basketID) {
+        if (parseInt($('#number_' + basketID).html(), 10) > 0) {
+            var xmlHttp = new XMLHttpRequest();
+            xmlHttp.open("GET", '/orders/?delete_count=' + basketID, false);
+            xmlHttp.send(null);
+            if (xmlHttp.status == 200)
+                $('#number_' + basketID).html(parseFloat($('#number_' + basketID).html(), 10) - 1)
+                $('#final_cost').html(parseFloat($('#final_cost').html(), 10) - parseFloat($('#cost_' + basketID).html(), 10))
+            return xmlHttp.responseText;
+        }
+    }
+</script>
+{% if user.is_staff or user.seller %}
+<div class="border h-100 border-light p-3 mb-4">
+    <div class="row w-100">
+        <div class="col scroll-none" style="overflow-x: auto;">
+            <div class="d-flex justify-content-between">
+                <H4>Корзина</H4>
+                <H4>Заказ № {{ items_list.0.order_id.id }}</H4>
+            </div>
+            <table class="table table-hover rounded bg-light shadow">
+                <thead>
                         <tr>
                             <th scope="col">Наименование</th>
                             <th scope="col">Штрихкод</th>
@@ -29,7 +52,7 @@
                             <td>{{ item.pill_id.barcode }}</td>
                             <td>
                                 <div>
-                                    <button type="submit" name="add_to_cart" onclick="addToCart({{item.pill_id.id}})"
+                                    <button type="submit" name="add_to_cart" onclick="decrement({{item.id}})"
                                             class="btn-primary btn-sm mx-1">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                              fill="currentColor" class="bi bi-dash" viewBox="0 0 16 16">
@@ -37,8 +60,8 @@
                                         </svg>
 
                                     </button>
-                                    {{ item.count }}
-                                    <button type="submit" name="add_to_cart" onclick="addToCart({{item.pill_id.id}})"
+                                    <span id="number_{{ item.id }}">{{ item.count }}</span>
+                                    <button type="submit" name="add_to_cart" onclick="increment({{item.id}})"
                                             class="btn-sm btn-primary mx-1">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                              fill="currentColor"
@@ -48,14 +71,16 @@
                                     </button>
                                 </div>
                             </td>
-                            <td>{{ item.pill_id.cost }}</td>
+                            <td id="cost_{{ item.id }}">{{ item.pill_id.cost }}</td>
                         </tr>
                         {% endfor %}
                         <tr>
                             <td/>
                             <td/>
                             <td class="font-weight-bold h5">Итог</td>
-                            <td class="font-weight-bold h5">{{ final_cost }}</td>
+                            <td class="font-weight-bold h5 ">
+                                <span id="final_cost">{{ final_cost }}</span>
+                            </td>
                         </tr>
                         </tbody>
                     </table>

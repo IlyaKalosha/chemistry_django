@@ -32,7 +32,13 @@ class SellerAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['seller_id', 'manager_id', 'pharmacy_id', 'is_agreed', 'date']
+
+    def get_queryset(self, request):
+        qs = super(OrderAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(pharmacy_id=request.user.manager.pharmacy_id)
 
 
 @admin.register(Basket)

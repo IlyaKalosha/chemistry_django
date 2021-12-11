@@ -7,15 +7,28 @@
 {% block content %}
     <script>
         function hideAlert(storageId) {
-            $(".alert").removeClass('show');
+            $(".alert_success").removeClass('show');
+            $(".alert_danger").removeClass('show');
         }
 
         function addToCart(storageId) {
-            $(".alert").addClass('show');
-            var xmlHttp = new XMLHttpRequest();
-            xmlHttp.open("GET", '/pills/?storageId=' + storageId, false);
-            xmlHttp.send(null);
-            return xmlHttp.responseText;
+            if (parseInt($('#number_' + storageId).html(), 10) > 0) {
+                var xmlHttp = new XMLHttpRequest();
+                xmlHttp.open("GET", '/pills/?storageId=' + storageId, false);
+                xmlHttp.send(null);
+                    if (xmlHttp.status == 201){
+                        console.log(xmlHttp.status);
+                        $(".message").text(xmlHttp.responseText);
+                        $(".alert_success").addClass('show');
+                        $('#number_' + storageId).html(parseInt($('#number_' + storageId).html(), 10) - 1);
+                    }
+                    else{
+                        console.log(xmlHttp.status);
+                        $(".message_danger").text(xmlHttp.responseText);
+                        $(".alert_danger").addClass('show');
+                    }
+                }
+                return xmlHttp.responseText;
         }
     </script>
     {% if user.is_staff or user.seller %}
@@ -55,11 +68,11 @@
                                     {% endif %}
                                 </td>
                                 <td>{{ item.pill_id.info }}</td>
-                                <td>{{ item.count }}</td>
+                                <td id="number_{{ item.id }}">{{ item.count }}</td>
                                 <td>{{ item.pharmacy_id.city }}, {{ item.pharmacy_id.address }}</td>
                                 <td class="d-flex justify-content-center">
                                     {% if item.pharmacy_id == user.manager.pharmacy_id or item.pharmacy_id == user.seller.manager_id.pharmacy_id%}
-                                    <button type="submit" name="add_to_cart" onclick="addToCart({{item.pill_id.id}})"
+                                    <button type="submit" name="add_to_cart" onclick="addToCart({{ item.id }})"
                                             class="btn btn-primary">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                              fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
@@ -75,8 +88,16 @@
                     </table>
                 </div>
             </div>
-            <div class="alert alert-success alert-dismissible fade" role="alert" style="position: fixed; bottom: 20px; right: 20px;">
-                <strong>Успешно добавлено в корзину</strong>
+            <div class="alert alert-success alert-dismissible fade alert_success" role="alert"
+                 style="position: fixed; bottom: 20px; right: 20px;">
+                <strong class="messaged">Успешно добавлено в корзину</strong>
+                <button type="button" class="close" onclick="hideAlert()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="alert alert-danger alert-dismissible fade alert_danger"
+                 style="position: fixed; bottom: 20px; right: 20px;">
+                <strong class="message_danger">Ошибка</strong>
                 <button type="button" class="close" onclick="hideAlert()" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
