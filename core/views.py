@@ -2,12 +2,12 @@ import datetime
 
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Sum
-from django.shortcuts import render, redirect
+from django.db.models import Q
 from django.http import HttpResponse
+from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import TemplateView
-from django.db.models import Q
+
 from . import models
 from .utils import django_admin_keyword_search
 
@@ -46,7 +46,6 @@ class Pills(LoginRequiredMixin, View):
                     current_order = models.Order.objects.filter(Q(is_agreed=False) &
                                                                 Q(pharmacy_id=self.user_manager.pharmacy_id) &
                                                                 Q(manager_id=self.user_manager))
-                    print(current_order)
                     if current_order:
                         current_order = current_order[0]
                         existed_pill_in_basket = models.Basket.objects.filter(order_id=current_order,
@@ -56,6 +55,8 @@ class Pills(LoginRequiredMixin, View):
                             existed_pill_in_basket.count += 1
                             edited_pill = models.Storage.objects.get(pk=current_storage)
                             edited_pill.count -= 1
+                            edited_pill.full_clean()
+                            existed_pill_in_basket.full_clean()
                             edited_pill.save()
                             existed_pill_in_basket.save()
                         else:
@@ -66,18 +67,20 @@ class Pills(LoginRequiredMixin, View):
                         new_order = models.Order(manager_id=request.user.manager,
                                                  pharmacy_id=request.user.manager.pharmacy_id, is_agreed=False,
                                                  date=datetime.datetime.now())
+                        new_order.full_clean()
                         new_order.save()
                         new_pill_in_basket = models.Basket(order_id=new_order,
                                                            pill_id=models.Pill.objects.get(pk=current_pill.id), count=1)
                         edited_pill = models.Storage.objects.get(pk=current_storage)
                         edited_pill.count -= 1
+                        edited_pill.full_clean()
+                        new_pill_in_basket.full_clean()
                         edited_pill.save()
                         new_pill_in_basket.save()
                 else:
                     current_order = models.Order.objects.filter(Q(is_agreed=False) &
                                                                 Q(pharmacy_id=self.user_seller.manager_id.pharmacy_id) &
                                                                 Q(seller_id=self.user_seller))
-                    print(current_order)
                     if current_order:
                         current_order = current_order[0]
                         existed_pill_in_basket = models.Basket.objects.filter(order_id=current_order,
@@ -87,21 +90,27 @@ class Pills(LoginRequiredMixin, View):
                             existed_pill_in_basket.count += 1
                             edited_pill = models.Storage.objects.get(pk=current_storage)
                             edited_pill.count -= 1
+                            edited_pill.full_clean()
+                            existed_pill_in_basket.full_clean()
                             edited_pill.save()
                             existed_pill_in_basket.save()
                         else:
                             new_pill_in_basket = models.Basket(order_id=current_order,
                                                                pill_id=models.Pill.objects.get(pk=current_pill.id), count=1)
+                            new_pill_in_basket.full_clean()
                             new_pill_in_basket.save()
                     else:
                         new_order = models.Order(seller_id=request.user.seller,
                                                  pharmacy_id=request.user.seller.manager_id.pharmacy_id, is_agreed=False,
                                                  date=datetime.datetime.now())
+                        new_order.full_clean()
                         new_order.save()
                         new_pill_in_basket = models.Basket(order_id=new_order,
                                                            pill_id=models.Pill.objects.get(pk=current_pill.id), count=1)
                         edited_pill = models.Storage.objects.get(pk=current_storage)
                         edited_pill.count -= 1
+                        edited_pill.full_clean()
+                        new_pill_in_basket.full_clean()
                         edited_pill.save()
                         new_pill_in_basket.save()
                 return HttpResponse(status=201, content="Успешно добавлено в корзину")
@@ -134,7 +143,7 @@ class Pills(LoginRequiredMixin, View):
                                                         ['name', 'category', 'cost', 'country'])
                     for pill in pills:
                         context['pills_list'].extend(models.Storage.objects.filter(
-                            pill_id__id=pill.id, pharmacy_id=request.user.seller.pharmacy_id))
+                            pill_id__id=pill.id, pharmacy_id=request.user.seller.manager_id.pharmacy_id))
                 else:
                     context['pills_list'] = []
                     pills = django_admin_keyword_search(models.Pill,
@@ -159,6 +168,78 @@ class Recipes(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         context = {}
+
+        if 'recipe_id' in request.GET:
+            try:
+                recipe_id = request.GET.get('recipe_id')
+                current_recipe = models.Recipe.objects.get(pk=recipe_id)
+                pill_id = models.Pill.objects.filter(recipe_id=recipe_id)[0]
+                if hasattr(request.user, 'manager'):
+                    pharmacy_id = request.user.manager.pharmacy_id
+                else:
+                    pharmacy_id = request.user.seller.manager_id.pharmacy_id
+                if hasattr(request.user, 'manager'):
+                    current_order = models.Order.objects.filter(Q(is_agreed=False) &
+                                                                Q(pharmacy_id=pharmacy_id) &
+                                                                Q(manager_id=request.user.manager))
+                else:
+                    current_order = models.Order.objects.filter(Q(is_agreed=False) &
+                                                                Q(pharmacy_id=pharmacy_id) &
+                                                                Q(seller_id=request.user.seller))
+                if current_order:
+                    current_order = current_order[0]
+                    existed_pill_in_basket = models.Basket.objects.filter(order_id=current_order, pill_id=pill_id)
+                    if existed_pill_in_basket:
+                        existed_pill_in_basket = existed_pill_in_basket[0]
+                        existed_pill_in_basket.count += current_recipe.count_by_recipe
+                        edited_pill = models.Storage.objects.filter(pill_id=pill_id, pharmacy_id=pharmacy_id)[0]
+                        edited_pill.count -= current_recipe.count_by_recipe
+                        edited_pill.full_clean()
+                        edited_pill.save()
+                        existed_pill_in_basket.full_clean()
+                        existed_pill_in_basket.save()
+                    else:
+                        new_pill_in_basket = models.Basket(order_id=current_order,
+                                                            pill_id=pill_id,
+                                                            count=current_recipe.count_by_recipe)
+                        edited_pill = models.Storage.objects.filter(pill_id=pill_id, pharmacy_id=pharmacy_id)[0]
+                        edited_pill.count -= current_recipe.count_by_recipe
+                        edited_pill.full_clean()
+                        edited_pill.save()
+                        new_pill_in_basket.full_clean()
+                        new_pill_in_basket.save()
+                else:
+                    if hasattr(request.user, 'manager'):
+                        new_order = models.Order(manager_id=request.user.manager,
+                                                 pharmacy_id=pharmacy_id,
+                                                 is_agreed=False,
+                                                 date=datetime.datetime.now())
+                    else:
+                        new_order = models.Order(seller_id=request.user.seller,
+                                                 pharmacy_id=pharmacy_id,
+                                                 is_agreed=False,
+                                                 date=datetime.datetime.now())
+                    new_order.full_clean()
+                    new_order.save()
+                    try:
+                        new_pill_in_basket = models.Basket(order_id=new_order,
+                                                           pill_id=pill_id,
+                                                           count=current_recipe.count_by_recipe)
+                        edited_pill = models.Storage.objects.filter(pill_id=pill_id, pharmacy_id=pharmacy_id)
+                        edited_pill.count -= current_recipe.count_by_recipe
+                        edited_pill.full_clean()
+                        new_pill_in_basket.full_clean()
+                        edited_pill.save()
+                        new_pill_in_basket.save()
+                    except Exception as e:
+                        print(e)
+                        new_order.delete()
+                        raise e
+                return HttpResponse(status=201, content="Успешно добавлено в корзину")
+            except Exception as e:
+                print(e)
+                return HttpResponse(status=500, content="Ошибка при добавлении в корзину")
+
         if 'search' in request.GET:
             context['recipes_list'] = []
             context['recipes_list'] = django_admin_keyword_search(models.Recipe,
@@ -216,6 +297,8 @@ class Orders(LoginRequiredMixin, View):
             current_storage.count += 1
             current_storage.save()
             current_basket.save()
+            if current_basket.count == 0:
+                current_basket.delete()
             return render(request, self.template_name, self.get_context_data(request, **context))
 
 

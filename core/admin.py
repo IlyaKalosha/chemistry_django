@@ -9,20 +9,25 @@ from django.utils.translation import gettext_lazy as _
 @admin.register(Pharmacy)
 class PharmacyAdmin(admin.ModelAdmin):
     list_display = ['city', 'address', 'zip', 'phone']
+    search_fields = ['city', 'address', 'zip', 'phone']
 
 
 @admin.register(Manager)
 class ManagerAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'phone', 'pharmacy_id']
+    search_fields = ['__str__', 'phone', 'pharmacy_id']
 
 
 @admin.register(Pill)
 class PillAdmin(admin.ModelAdmin):
-    search_fields = ['name', 'category', 'end_date']
+    list_display = ['name', 'cost', 'category', 'country', 'barcode', 'info']
+    search_fields = ['name', 'cost', 'category', 'country', 'barcode', 'info']
 
 
 @admin.register(Seller)
 class SellerAdmin(admin.ModelAdmin):
+    list_display = ['__str__', 'phone', 'manager_id']
+    search_fields = ['__str__', 'phone', 'manager_id']
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "user":
@@ -32,7 +37,8 @@ class SellerAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['seller_id', 'manager_id', 'pharmacy_id', 'is_agreed', 'date']
+    list_display = ['id', 'seller_id', 'manager_id', 'pharmacy_id', 'is_agreed', 'date']
+    search_fields = ['id', 'seller_id', 'manager_id', 'pharmacy_id', 'is_agreed', 'date']
 
     def get_queryset(self, request):
         qs = super(OrderAdmin, self).get_queryset(request)
@@ -43,17 +49,27 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(Basket)
 class BasketAdmin(admin.ModelAdmin):
-    pass
+
+    list_display = ['pill_id', 'order_id', 'count']
+    search_fields = ['pill_id', 'order_id', 'count']
+
+    def get_queryset(self, request):
+        qs = super(BasketAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(order_id__pharmacy_id=request.user.manager.pharmacy_id, order_id__is_agreed=False)
 
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ['doctor', 'pill_name', 'signature', 'expire_date']
+    search_fields = ['doctor', 'pill_name', 'signature', 'expire_date']
 
 
 @admin.register(Storage)
 class StorageAdmin(admin.ModelAdmin):
     list_display = ['pill_id', 'count', 'pharmacy_id']
+    search_fields = ['pill_id', 'count', 'pharmacy_id']
 
     def get_queryset(self, request):
         qs = super(StorageAdmin, self).get_queryset(request)

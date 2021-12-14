@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Sum
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 class Pharmacy(models.Model):
@@ -40,6 +41,8 @@ class Seller(models.Model):
 
 
 class Recipe(models.Model):
+    patient_id = models.CharField(max_length=15)
+    count_by_recipe = models.IntegerField()
     doctor = models.CharField(max_length=50)
     pill_name = models.CharField(max_length=50)
     signature = models.CharField(max_length=256)
@@ -47,7 +50,6 @@ class Recipe(models.Model):
 
     def __str__(self):
         return f'{self.pill_name}'
-
 
 
 class Pill(models.Model):
@@ -67,7 +69,9 @@ class Storage(models.Model):
     pill_id = models.ForeignKey(Pill, on_delete=models.CASCADE)
     reg_date = models.DateField()
     end_date = models.DateField(null=True)
-    count = models.IntegerField()
+    count = models.IntegerField(validators=[
+            MinValueValidator(0)
+        ])
     pharmacy_id = models.ForeignKey(Pharmacy, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -81,8 +85,17 @@ class Order(models.Model):
     is_agreed = models.BooleanField()
     date = models.DateField()
 
+    def __str__(self):
+        if self.manager_id:
+            return f'{self.pharmacy_id} {self.manager_id}'
+        else:
+            return f'{self.pharmacy_id} {self.seller_id}'
+
 
 class Basket(models.Model):
     order_id = models.ForeignKey(Order, on_delete=models.CASCADE)
     pill_id = models.ForeignKey(Pill, on_delete=models.CASCADE)
     count = models.IntegerField()
+
+    def __str__(self):
+        return f'{self.pill_id.__str__()}   {self.order_id.__str__()}'
