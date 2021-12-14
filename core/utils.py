@@ -1,6 +1,4 @@
 from django.db.models import Q
-from django.db.models.query import QuerySet
-import operator
 
 
 def django_admin_keyword_search(model, keywords, search_fields):

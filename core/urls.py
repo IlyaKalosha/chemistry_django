@@ -1,4 +1,5 @@
 from django.urls import path, include
+
 from .views import Home, Signup, Pills, Recipes, Orders
 
 urlpatterns = [

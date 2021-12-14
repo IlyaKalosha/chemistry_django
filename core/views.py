@@ -61,7 +61,8 @@ class Pills(LoginRequiredMixin, View):
                             existed_pill_in_basket.save()
                         else:
                             new_pill_in_basket = models.Basket(order_id=current_order,
-                                                               pill_id=models.Pill.objects.get(pk=current_pill.id), count=1)
+                                                               pill_id=models.Pill.objects.get(pk=current_pill.id),
+                                                               count=1)
                             new_pill_in_basket.save()
                     else:
                         new_order = models.Order(manager_id=request.user.manager,
@@ -96,12 +97,14 @@ class Pills(LoginRequiredMixin, View):
                             existed_pill_in_basket.save()
                         else:
                             new_pill_in_basket = models.Basket(order_id=current_order,
-                                                               pill_id=models.Pill.objects.get(pk=current_pill.id), count=1)
+                                                               pill_id=models.Pill.objects.get(pk=current_pill.id),
+                                                               count=1)
                             new_pill_in_basket.full_clean()
                             new_pill_in_basket.save()
                     else:
                         new_order = models.Order(seller_id=request.user.seller,
-                                                 pharmacy_id=request.user.seller.manager_id.pharmacy_id, is_agreed=False,
+                                                 pharmacy_id=request.user.seller.manager_id.pharmacy_id,
+                                                 is_agreed=False,
                                                  date=datetime.datetime.now())
                         new_order.full_clean()
                         new_order.save()
@@ -200,8 +203,8 @@ class Recipes(LoginRequiredMixin, View):
                         existed_pill_in_basket.save()
                     else:
                         new_pill_in_basket = models.Basket(order_id=current_order,
-                                                            pill_id=pill_id,
-                                                            count=current_recipe.count_by_recipe)
+                                                           pill_id=pill_id,
+                                                           count=current_recipe.count_by_recipe)
                         edited_pill = models.Storage.objects.filter(pill_id=pill_id, pharmacy_id=pharmacy_id)[0]
                         edited_pill.count -= current_recipe.count_by_recipe
                         edited_pill.full_clean()
@@ -255,11 +258,13 @@ class Orders(LoginRequiredMixin, View):
         if hasattr(request.user, 'seller'):
             kwargs['items_list'] = models.Basket.objects.filter(Q(order_id__is_agreed=False) &
                                                                 Q(order_id__pharmacy_id=self.user_seller.manager_id.pharmacy_id) &
-                                                                Q(order_id__seller_id=self.user_seller)).order_by('pill_id')
+                                                                Q(order_id__seller_id=self.user_seller)).order_by(
+                'pill_id')
         if hasattr(request.user, 'manager'):
             kwargs['items_list'] = models.Basket.objects.filter(Q(order_id__is_agreed=False) &
                                                                 Q(order_id__pharmacy_id=self.user_manager.pharmacy_id) &
-                                                                Q(order_id__manager_id=self.user_manager)).order_by('pill_id')
+                                                                Q(order_id__manager_id=self.user_manager)).order_by(
+                'pill_id')
 
         kwargs['final_cost'] = 0
         for item in kwargs['items_list']:
@@ -278,7 +283,8 @@ class Orders(LoginRequiredMixin, View):
         if 'add_count' in request.GET:
             context = {}
             current_basket = models.Basket.objects.get(pk=request.GET.get('add_count'))
-            current_storage = models.Storage.objects.filter(pill_id=current_basket.pill_id, pharmacy_id=current_basket.order_id.pharmacy_id)[0]
+            current_storage = models.Storage.objects.filter(pill_id=current_basket.pill_id,
+                                                            pharmacy_id=current_basket.order_id.pharmacy_id)[0]
             if current_storage.count > 0:
                 current_basket.count += 1
                 current_storage.count -= 1
@@ -292,7 +298,8 @@ class Orders(LoginRequiredMixin, View):
         if 'delete_count' in request.GET:
             context = {}
             current_basket = models.Basket.objects.get(pk=request.GET.get('delete_count'))
-            current_storage = models.Storage.objects.filter(pill_id=current_basket.pill_id, pharmacy_id=current_basket.order_id.pharmacy_id)[0]
+            current_storage = models.Storage.objects.filter(pill_id=current_basket.pill_id,
+                                                            pharmacy_id=current_basket.order_id.pharmacy_id)[0]
             current_basket.count -= 1
             current_storage.count += 1
             current_storage.save()
@@ -300,7 +307,6 @@ class Orders(LoginRequiredMixin, View):
             if current_basket.count == 0:
                 current_basket.delete()
             return render(request, self.template_name, self.get_context_data(request, **context))
-
 
         return render(request, self.template_name, self.get_context_data(request))
 
