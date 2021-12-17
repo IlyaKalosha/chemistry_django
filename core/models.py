@@ -46,6 +46,7 @@ class Recipe(models.Model):
     pill_name = models.CharField(max_length=50)
     signature = models.CharField(max_length=256)
     expire_date = models.DateField()
+    is_used = models.BooleanField()
 
     def __str__(self):
         return f'{self.pill_name}'
