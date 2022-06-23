@@ -288,6 +288,7 @@ class Orders(LoginRequiredMixin, View):
                 current_storage.count -= 1
                 current_storage.save()
                 current_basket.save()
+                return HttpResponse(status=201, content="Успешно добавлено")
             else:
                 return HttpResponse(status=500, content="Ошибка при добавлении в корзину")
 
@@ -302,6 +303,7 @@ class Orders(LoginRequiredMixin, View):
             current_storage.count += 1
             current_storage.save()
             current_basket.save()
+            return HttpResponse(status=201, content="Успешно добавлено")
             if current_basket.count == 0:
                 current_basket.delete()
             return render(request, self.template_name, self.get_context_data(request, **context))

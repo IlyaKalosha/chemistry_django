@@ -10,9 +10,10 @@
         var xmlHttp = new XMLHttpRequest();
         xmlHttp.open("GET", '/orders/?add_count=' + basketID, false);
         xmlHttp.send(null);
-        if (xmlHttp.status == 200)
+        if (xmlHttp.status == 201) {
             $('#number_' + basketID).html(parseFloat($('#number_' + basketID).html(), 10) + 1)
             $('#final_cost').html(parseFloat($('#final_cost').html(), 10) + parseFloat($('#cost_' + basketID).html(), 10))
+        }
         return xmlHttp.responseText;
     }
 
@@ -21,9 +22,10 @@
             var xmlHttp = new XMLHttpRequest();
             xmlHttp.open("GET", '/orders/?delete_count=' + basketID, false);
             xmlHttp.send(null);
-            if (xmlHttp.status == 200)
+            if (xmlHttp.status == 201) {
                 $('#number_' + basketID).html(parseFloat($('#number_' + basketID).html(), 10) - 1)
                 $('#final_cost').html(parseFloat($('#final_cost').html(), 10) - parseFloat($('#cost_' + basketID).html(), 10))
+            }
             return xmlHttp.responseText;
         }
     }
